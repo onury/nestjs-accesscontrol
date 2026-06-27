@@ -1,6 +1,6 @@
 {
   "name": "nestjs-accesscontrol",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Role & attribute-based access control for NestJS, built natively on accesscontrol v3 — fluent CRUD decorators, fail-closed guard, and attribute filtering.",
   "type": "module",
   "license": "MIT",
