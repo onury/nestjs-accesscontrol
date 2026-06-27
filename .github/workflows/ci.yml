@@ -7,7 +7,28 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  # Verify runtime compatibility across the supported range (engines: >=20).
+  # vitest declares even majors only (^20 || ^22 || >=24), so we test 20/22/24.
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run test:coverage
+
+  # Quality gate — runtime-independent, so run once on the current LTS.
+  mutation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,8 +37,4 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm run build
-      - run: npm run test:coverage
       - run: npm run test:mutation
