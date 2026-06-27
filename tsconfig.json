@@ -15,6 +15,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noEmit": true,
+    "ignoreDeprecations": "6.0",
     "types": ["node", "reflect-metadata", "vitest/globals"]
   },
   "include": ["src"],

@@ -64,19 +64,19 @@
     "rxjs": "^7"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.0",
+    "@biomejs/biome": "^2.5.1",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
-    "@stryker-mutator/core": "^8.7.1",
-    "@stryker-mutator/vitest-runner": "^8.7.1",
-    "@types/node": "^22.10.0",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
+    "@types/node": "^24.0.0",
+    "@vitest/coverage-istanbul": "^4.1.9",
     "accesscontrol": "^3.0.0",
     "biome-config-oy": "^1.1.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   }
 }
