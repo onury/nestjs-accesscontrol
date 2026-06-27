@@ -1,20 +1,37 @@
 # nestjs-accesscontrol
 
-Role & attribute-based access control for [NestJS](https://nestjs.com), built
-natively on [**accesscontrol** v3](https://github.com/onury/accesscontrol).
+<p align="center">
+  <a href="https://github.com/onury/nestjs-accesscontrol/actions/workflows/ci.yml"><img src="https://github.com/onury/nestjs-accesscontrol/actions/workflows/ci.yml/badge.svg" alt="build" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/coverage-100%25-2BB150?logo=vitest&logoColor=%23FDC72B&style=flat" alt="coverage" /></a>
+  <a href="https://stryker-mutator.io/"><img src="https://img.shields.io/badge/mutation-100%25-2BB150?style=flat" alt="mutation score" /></a>
+  <a href="https://www.npmjs.com/package/nestjs-accesscontrol"><img src="https://img.shields.io/npm/v/nestjs-accesscontrol.svg?style=flat&label=&color=%23C6234B&logo=npm" alt="version" /></a>
+  <a href="https://www.npmjs.com/package/nestjs-accesscontrol"><img src="https://img.shields.io/npm/dm/nestjs-accesscontrol.svg?style=flat&color=2BB150" alt="downloads" /></a>
+  <a href="https://github.com/onury/accesscontrol"><img src="https://img.shields.io/badge/built%20on-AccessControl%20v3-C6234B?style=flat" alt="built on AccessControl v3" /></a>
+  <a href="https://gist.github.com/onury/d3f3d765d7db2e8b2d050d14315f2ac7"><img src="https://img.shields.io/badge/ESM-F7DF1E?style=flat" alt="ESM" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TS-3260C7?style=flat" alt="TypeScript" /></a>
+  <a href="https://github.com/onury/nestjs-accesscontrol/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat" alt="license" /></a>
+</p>
+
+The **official** NestJS integration for [**AccessControl v3**](https://github.com/onury/accesscontrol) —
+role & attribute-based access control (RBAC + ABAC) for [NestJS](https://nestjs.com).
 
 Fluent CRUD decorators, a fail-closed guard, first-class `forRootAsync` for
 DB-driven grants, and attribute filtering on the way out — with your auth layer
 left entirely to you.
 
-> ESM-only, like accesscontrol v3. Requires Node ≥ 20 and NestJS 10/11.
+> **ESM-only**, like AccessControl v3. Requires Node ≥ 20 and NestJS 10 / 11.
+>
+> _For AccessControl v2, you can consider [`nest-access-control`](https://github.com/nestjsx/nest-access-control)._
 
 ## Why
 
-The existing community adapter is pinned to accesscontrol **v2** and predates the
-v3 API (`tryCan`, `Permission.filter()`, declarative conditions). This package is
-v3-native and speaks accesscontrol's own vocabulary — roles, `action`, possession
-(`own`/`any`), and the `Permission` object — rather than wrapping it in a new one.
+The long-standing community adapter, [`nest-access-control`](https://github.com/nestjsx/nest-access-control),
+is pinned to accesscontrol **v2** and predates the v3 API (`tryCan`,
+`Permission.filter()`, declarative conditions). As the **first-party** package — from
+the author of AccessControl — this one is v3-native and speaks accesscontrol's own
+vocabulary (roles, `action`, possession `own`/`any`, the `Permission` object) rather
+than wrapping it in a new one. On v2? [`nest-access-control`](https://github.com/nestjsx/nest-access-control)
+remains the right choice.
 
 ## Install
 
