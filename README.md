@@ -5,8 +5,6 @@
   <a href="#"><img src="https://img.shields.io/badge/coverage-100%25-2BB150?logo=vitest&logoColor=%23FDC72B&style=flat" alt="coverage" /></a>
   <a href="https://stryker-mutator.io/"><img src="https://img.shields.io/badge/mutation-100%25-2BB150?style=flat" alt="mutation score" /></a>
   <a href="https://www.npmjs.com/package/nestjs-accesscontrol"><img src="https://img.shields.io/npm/v/nestjs-accesscontrol.svg?style=flat&label=&color=%23C6234B&logo=npm" alt="version" /></a>
-  <a href="https://www.npmjs.com/package/nestjs-accesscontrol"><img src="https://img.shields.io/npm/dm/nestjs-accesscontrol.svg?style=flat&color=2BB150" alt="downloads" /></a>
-  <a href="https://github.com/onury/accesscontrol"><img src="https://img.shields.io/badge/built%20on-AccessControl%20v3-C6234B?style=flat" alt="built on AccessControl v3" /></a>
   <a href="https://gist.github.com/onury/d3f3d765d7db2e8b2d050d14315f2ac7"><img src="https://img.shields.io/badge/ESM-F7DF1E?style=flat" alt="ESM" /></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TS-3260C7?style=flat" alt="TypeScript" /></a>
   <a href="https://github.com/onury/nestjs-accesscontrol/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat" alt="license" /></a>
@@ -20,8 +18,6 @@ DB-driven grants, and attribute filtering on the way out — with your auth laye
 left entirely to you.
 
 > **ESM-only**, like AccessControl v3. Requires Node ≥ 20 and NestJS 10 / 11.
->
-> _For AccessControl v2, you can consider [`nest-access-control`](https://github.com/nestjsx/nest-access-control)._
 
 ## Why
 
@@ -127,11 +123,18 @@ The eight fluent decorators map 1:1 onto accesscontrol's methods:
 `@DeleteOwn` `@DeleteAny`. Possession defaults to `any`.
 
 ```ts
-// Multiple rules — all must pass:
+// Custom (non-CRUD) action — grant it with `ac.grant('editor').action('publish', 'article')`:
+@Can('publish', 'article')
+@Post(':id/publish')
+publish(@Param('id') id: string) { /* … */ }
+
+// Multiple rules on one route — all must pass (AND):
 @RequirePermission([
   { action: 'read', resource: 'article' },
   { action: 'update', resource: 'article', possession: 'own' },
 ])
+@Patch(':id')
+update() { /* … */ }
 ```
 
 ## DB-driven grants (`forRootAsync`)
@@ -150,17 +153,55 @@ AccessControlModule.forRootAsync({
 The factory may return a built `AccessControl` or a grants object/list — the
 module locks the latter for you.
 
-## Attribute filtering & `own`
+## Attribute filtering & ownership
 
-On a granted request the resolved accesscontrol `Permission` is attached as
-`request.permission` (and all of them as `request.permissions`).
+On a granted request the resolved `Permission` is attached to `request.permission`
+(and all of them, in rule order, as `request.permissions`).
 
-- **Filter output** — drop attributes the role can't see:
-  - `@FilterResponse()` on the handler does it automatically, or
-  - `req.permission.filter(data)` / `filterByPermission(permission, data)` manually.
-- **Enforce `own`** — the guard authorizes the *grant* (can this role update its
-  own articles?), but only your code knows who owns a given record. Load it and
-  call `assertOwner(req.user.id, record.ownerId)`.
+**Filter output** — strip attributes the role may not see. Three equivalent ways:
+
+```ts
+import { filterByPermission } from 'nestjs-accesscontrol';
+
+// 1) Declarative — filters the handler's return automatically:
+@ReadAny('article')
+@FilterResponse()
+@Get(':id')
+findOne(@Param('id') id: string) {
+  return this.articles.find(id);
+}
+
+// 2) From the request, inside the handler:
+findOne(@Req() req: AccessControlRequest) {
+  return req.permission?.filter(await this.articles.find(id));
+}
+
+// 3) In a service (no request handy), with the helper:
+const visible = filterByPermission(permission, article);
+```
+
+**Enforce `own`** — the guard authorizes the *grant* (may this role update its own
+articles?), but only your code knows who owns a given record. Load it and compare:
+
+```ts
+import { assertOwner } from 'nestjs-accesscontrol';
+
+const article = await this.articles.find(id);
+assertOwner(req.user.id, article.authorId); // throws ForbiddenException on mismatch
+```
+
+**Ad-hoc checks** — inject the shared `AccessControl` to query grants anywhere:
+
+```ts
+import { InjectAccessControl } from 'nestjs-accesscontrol';
+import { AccessControl } from 'accesscontrol';
+
+constructor(@InjectAccessControl() private readonly ac: AccessControl) {}
+
+canPromote(role: string) {
+  return this.ac.tryCan(role).updateAny('user').granted;
+}
+```
 
 ## Configuration
 
@@ -176,10 +217,41 @@ On a granted request the resolved accesscontrol `Permission` is attached as
 
 ## API
 
-`AccessControlModule`, `AccessControlGuard`, `FilterResponseInterceptor` ·
-decorators (above) · `FilterResponse`, `filterByPermission`, `assertOwner` ·
-`InjectAccessControl` / `ACCESS_CONTROL` token · types `AcRule`, `Possession`,
-`CrudAction`, `Grants`, `RoleResolver`, `AccessControlRequest`.
+**Module**
+
+| Export | Description |
+|--------|-------------|
+| `AccessControlModule.forRoot(options)` | Register a built `AccessControl` (`ac`) or `grants` synchronously. |
+| `AccessControlModule.forRootAsync(options)` | Build the `AccessControl`/grants from injected deps (DB-driven). |
+
+**Route decorators** (combine with AND; all desugar to the same rule metadata)
+
+| Export | Description |
+|--------|-------------|
+| `@CreateOwn` `@CreateAny` `@ReadOwn` `@ReadAny` `@UpdateOwn` `@UpdateAny` `@DeleteOwn` `@DeleteAny` | Fluent CRUD — `(resource)`. The everyday surface. |
+| `@Can(action, resource, possession?)` | Generic form for custom (non-CRUD) actions. Possession defaults to `'any'`. |
+| `@RequirePermission(rule \| rule[])` | Canonical form; the only one that accepts **multiple** rules. |
+
+**Enforcement & filtering**
+
+| Export | Description |
+|--------|-------------|
+| `AccessControlGuard` | Evaluates the route's rules (fail-closed `tryCan`); attaches the granted `Permission` to `req.permission`. |
+| `@FilterResponse()` | Handler/controller decorator — filters the response through `req.permission`. |
+| `FilterResponseInterceptor` | The interceptor class behind `@FilterResponse()` (for manual `@UseInterceptors`). |
+| `filterByPermission(permission, data)` | Function form of the filter, for use in services. |
+| `assertOwner(userId, ownerId, message?)` | Throws `ForbiddenException` unless the two ids match (`own` enforcement). |
+
+**Instance access**
+
+| Export | Description |
+|--------|-------------|
+| `@InjectAccessControl()` | Parameter decorator injecting the shared `AccessControl`. |
+| `ACCESS_CONTROL` | The DI token it resolves (for custom providers). |
+| `AC_ROLE_RESOLVER` | DI token holding the configured role resolver. |
+
+**Types** — `AcRule`, `Possession`, `CrudAction`, `Grants`, `RoleResolver`,
+`AccessControlRequest`, `AccessControlModuleOptions`, `AccessControlModuleAsyncOptions`.
 
 ## Related Projects
 
