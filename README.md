@@ -10,24 +10,22 @@
   <a href="https://github.com/onury/nestjs-accesscontrol/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat" alt="license" /></a>
 </p>
 
-The **official** NestJS integration for [**AccessControl v3**](https://github.com/onury/accesscontrol) —
-role & attribute-based access control (RBAC + ABAC) for [NestJS](https://nestjs.com).
+The **official** [NestJS](https://nestjs.com) integration for [**AccessControl v3**](https://github.com/onury/accesscontrol) —
+role & attribute-based access control (RBAC + ABAC) for Node.js.
 
 Fluent CRUD decorators, a fail-closed guard, first-class `forRootAsync` for
-DB-driven grants, and attribute filtering on the way out — with your auth layer
-left entirely to you.
+DB-driven grants, and attribute filtering on the way out — with your auth layer left entirely to you.
 
-> **ESM-only**, like AccessControl v3. Requires Node ≥ 20 and NestJS 10 / 11.
+> **[ESM](https://gist.github.com/onury/d3f3d765d7db2e8b2d050d14315f2ac7)-only**, like AccessControl v3. Requires Node ≥ 20 and NestJS 10/11.
 
 ## Why
 
-The long-standing community adapter, [`nest-access-control`](https://github.com/nestjsx/nest-access-control),
-is pinned to accesscontrol **v2** and predates the v3 API (`tryCan`,
-`Permission.filter()`, declarative conditions). As the **first-party** package — from
-the author of AccessControl — this one is v3-native and speaks accesscontrol's own
-vocabulary (roles, `action`, possession `own`/`any`, the `Permission` object) rather
-than wrapping it in a new one. On v2? [`nest-access-control`](https://github.com/nestjsx/nest-access-control)
-remains the right choice.
+As the **first-party** package — from the author of AccessControl — this is a v3-native
+integration: it speaks accesscontrol's own vocabulary (roles, `action`, possession `own`/`any`,
+the `Permission` object) and builds on the v3 API (`tryCan`, `Permission.filter()`, declarative
+conditions) rather than wrapping it in a new one.
+
+> Using AccessControl **v2**? [`nest-access-control`](https://github.com/nestjsx/nest-access-control) remains the right choice.
 
 ## Install
 
@@ -76,9 +74,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 export class AppModule {}
 ```
 
-Guard order matters: `AccessControlGuard` expects `request.user` to already be
-populated. Register your auth guard before it (or compose them with
-`@UseGuards(JwtAuthGuard, AccessControlGuard)` per route).
+Guard order matters: `AccessControlGuard` expects `request.user` to already be populated. Register your auth guard before it (or compose them with `@UseGuards(JwtAuthGuard, AccessControlGuard)` per route).
 
 **3. Declare access on routes:**
 
@@ -150,13 +146,11 @@ AccessControlModule.forRootAsync({
 });
 ```
 
-The factory may return a built `AccessControl` or a grants object/list — the
-module locks the latter for you.
+The factory may return a built `AccessControl` or a grants object/list — the module locks the latter for you.
 
 ## Attribute filtering & ownership
 
-On a granted request the resolved `Permission` is attached to `request.permission`
-(and all of them, in rule order, as `request.permissions`).
+On a granted request the resolved `Permission` is attached to `request.permission` (and all of them, in rule order, as `request.permissions`).
 
 **Filter output** — strip attributes the role may not see. Three equivalent ways:
 
@@ -180,8 +174,7 @@ findOne(@Req() req: AccessControlRequest) {
 const visible = filterByPermission(permission, article);
 ```
 
-**Enforce `own`** — the guard authorizes the *grant* (may this role update its own
-articles?), but only your code knows who owns a given record. Load it and compare:
+**Enforce `own`** — the guard authorizes the *grant* (may this role update its own articles?), but only your code knows who owns a given record. Load it and compare:
 
 ```ts
 import { assertOwner } from 'nestjs-accesscontrol';
