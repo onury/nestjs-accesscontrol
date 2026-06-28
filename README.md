@@ -241,6 +241,9 @@ canPromote(role: string) {
 - [**accesscontrol**](https://github.com/onury/accesscontrol) — Role & attribute-based access control (RBAC + ABAC) for Node.js; the engine this package integrates.
 - [**configuard**](https://github.com/onury/configuard) — Turn flat config rows from a database table into a nested, typed configuration object — with `${...}` templating and accessor-based (ABAC) filtering.
 - [**nestjs-configuard**](https://github.com/onury/nestjs-configuard) — The NestJS integration for [configuard](https://github.com/onury/configuard): DB-backed, typed, ABAC-filtered runtime config with live reload and TTL auto-refresh.
+- [**nestjs-credentials**](https://github.com/onury/nestjs-credentials) — Token-agnostic username/password credential verification — a `UserStore` seam + pluggable `PasswordHasher` (authenticate, then authorize here).
+- [**nestjs-jwt-guard**](https://github.com/onury/nestjs-jwt-guard) — Passport-free bearer-JWT authentication for NestJS — a configurable guard, `@Public()`, and a token-issuance helper.
+- [**nestjs-oauth2-password**](https://github.com/onury/nestjs-oauth2-password) — Passport-free OAuth2 ROPC for NestJS — opaque, server-stored, revocable access + refresh tokens and an RFC 6749 token endpoint.
 - [**notation**](https://github.com/onury/notation) — Read, modify, and filter the contents of objects and arrays via dot/bracket notation strings or glob patterns.
 
 ## License
