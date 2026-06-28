@@ -10,20 +10,15 @@
   <a href="https://github.com/onury/nestjs-accesscontrol/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat" alt="license" /></a>
 </p>
 
-The **official** [NestJS](https://nestjs.com) integration for [**AccessControl v3**](https://github.com/onury/accesscontrol) —
-role & attribute-based access control (RBAC + ABAC) for Node.js.
+The **official** [NestJS](https://nestjs.com) integration for [**AccessControl v3**](https://github.com/onury/accesscontrol) — role & attribute-based access control (RBAC + ABAC) for Node.js.
 
-Fluent CRUD decorators, a fail-closed guard, first-class `forRootAsync` for
-DB-driven grants, and attribute filtering on the way out — with your auth layer left entirely to you.
+Fluent CRUD decorators, a fail-closed guard, first-class `forRootAsync` for DB-driven grants, and attribute filtering on the way out — with your auth layer left entirely to you.
 
 > **[ESM](https://gist.github.com/onury/d3f3d765d7db2e8b2d050d14315f2ac7)-only**, like AccessControl v3. Requires Node ≥ 20 and NestJS 10/11.
 
 ## Why
 
-As the **first-party** package — from the author of AccessControl — this is a v3-native
-integration: it speaks accesscontrol's own vocabulary (roles, `action`, possession `own`/`any`,
-the `Permission` object) and builds on the v3 API (`tryCan`, `Permission.filter()`, declarative
-conditions) rather than wrapping it in a new one.
+As the **first-party** package — from the author of AccessControl — this is a v3-native integration: it speaks accesscontrol's own vocabulary (roles, `action`, possession `own`/`any`, the `Permission` object) and builds on the v3 API (`tryCan`, `Permission.filter()`, declarative conditions) rather than wrapping it in a new one.
 
 > Using AccessControl **v2**? [`nest-access-control`](https://github.com/nestjsx/nest-access-control) remains the right choice.
 
@@ -33,8 +28,7 @@ conditions) rather than wrapping it in a new one.
 npm install nestjs-accesscontrol accesscontrol
 ```
 
-`@nestjs/common`, `@nestjs/core`, `reflect-metadata`, and `rxjs` are peer
-dependencies (already present in any Nest app).
+`@nestjs/common`, `@nestjs/core`, `reflect-metadata`, and `rxjs` are peer dependencies (already present in any Nest app).
 
 ## Quick start
 
@@ -105,18 +99,15 @@ export class ArticlesController {
 
 ## Decorators
 
-All three forms compile to the same rule metadata and combine with **AND**
-(every rule on a route must pass).
+All three forms compile to the same rule metadata and combine with **AND** (every rule on a route must pass).
 
 | Form | Example | Use |
-|------|---------|-----|
+| --- | --- | --- |
 | **Fluent CRUD** | `@ReadAny('article')`, `@UpdateOwn('article')` | the everyday surface |
 | **Generic** | `@Can('publish', 'article', 'own')` | custom (non-CRUD) actions |
 | **Canonical** | `@RequirePermission({ action, resource, possession })` or an **array** | multi-rule / dynamic routes |
 
-The eight fluent decorators map 1:1 onto accesscontrol's methods:
-`@CreateOwn` `@CreateAny` `@ReadOwn` `@ReadAny` `@UpdateOwn` `@UpdateAny`
-`@DeleteOwn` `@DeleteAny`. Possession defaults to `any`.
+The eight fluent decorators map 1:1 onto accesscontrol's methods: `@CreateOwn` `@CreateAny` `@ReadOwn` `@ReadAny` `@UpdateOwn` `@UpdateAny` `@DeleteOwn` `@DeleteAny`. Possession defaults to `any`.
 
 ```ts
 // Custom (non-CRUD) action — grant it with `ac.grant('editor').action('publish', 'article')`:
@@ -174,7 +165,7 @@ findOne(@Req() req: AccessControlRequest) {
 const visible = filterByPermission(permission, article);
 ```
 
-**Enforce `own`** — the guard authorizes the *grant* (may this role update its own articles?), but only your code knows who owns a given record. Load it and compare:
+**Enforce `own`** — the guard authorizes the _grant_ (may this role update its own articles?), but only your code knows who owns a given record. Load it and compare:
 
 ```ts
 import { assertOwner } from 'nestjs-accesscontrol';
@@ -201,7 +192,7 @@ canPromote(role: string) {
 `forRoot` / `forRootAsync` options:
 
 | Option | Default | Description |
-|--------|---------|-------------|
+| --- | --- | --- |
 | `ac` | — | a pre-built, locked `AccessControl` (forRoot) |
 | `grants` | — | grants to build + lock (forRoot; alternative to `ac`) |
 | `useFactory` | — | returns `AccessControl` or grants (forRootAsync) |
@@ -213,14 +204,14 @@ canPromote(role: string) {
 **Module**
 
 | Export | Description |
-|--------|-------------|
+| --- | --- |
 | `AccessControlModule.forRoot(options)` | Register a built `AccessControl` (`ac`) or `grants` synchronously. |
 | `AccessControlModule.forRootAsync(options)` | Build the `AccessControl`/grants from injected deps (DB-driven). |
 
 **Route decorators** (combine with AND; all desugar to the same rule metadata)
 
 | Export | Description |
-|--------|-------------|
+| --- | --- |
 | `@CreateOwn` `@CreateAny` `@ReadOwn` `@ReadAny` `@UpdateOwn` `@UpdateAny` `@DeleteOwn` `@DeleteAny` | Fluent CRUD — `(resource)`. The everyday surface. |
 | `@Can(action, resource, possession?)` | Generic form for custom (non-CRUD) actions. Possession defaults to `'any'`. |
 | `@RequirePermission(rule \| rule[])` | Canonical form; the only one that accepts **multiple** rules. |
@@ -228,7 +219,7 @@ canPromote(role: string) {
 **Enforcement & filtering**
 
 | Export | Description |
-|--------|-------------|
+| --- | --- |
 | `AccessControlGuard` | Evaluates the route's rules (fail-closed `tryCan`); attaches the granted `Permission` to `req.permission`. |
 | `@FilterResponse()` | Handler/controller decorator — filters the response through `req.permission`. |
 | `FilterResponseInterceptor` | The interceptor class behind `@FilterResponse()` (for manual `@UseInterceptors`). |
@@ -238,13 +229,12 @@ canPromote(role: string) {
 **Instance access**
 
 | Export | Description |
-|--------|-------------|
+| --- | --- |
 | `@InjectAccessControl()` | Parameter decorator injecting the shared `AccessControl`. |
 | `ACCESS_CONTROL` | The DI token it resolves (for custom providers). |
 | `AC_ROLE_RESOLVER` | DI token holding the configured role resolver. |
 
-**Types** — `AcRule`, `Possession`, `CrudAction`, `Grants`, `RoleResolver`,
-`AccessControlRequest`, `AccessControlModuleOptions`, `AccessControlModuleAsyncOptions`.
+**Types** — `AcRule`, `Possession`, `CrudAction`, `Grants`, `RoleResolver`, `AccessControlRequest`, `AccessControlModuleOptions`, `AccessControlModuleAsyncOptions`.
 
 ## Related Projects
 
