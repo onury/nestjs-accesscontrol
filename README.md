@@ -15,7 +15,7 @@ The **official** [NestJS](https://nestjs.com) integration for [**AccessControl v
 
 Fluent CRUD decorators, a fail-closed guard, first-class `forRootAsync` for DB-driven grants, and attribute filtering on the way out — with your auth layer left entirely to you.
 
-> 🔆 **[ESM](https://gist.github.com/onury/d3f3d765d7db2e8b2d050d14315f2ac7)-only**, like AccessControl v3. Requires Node ≥ 20 and NestJS 10/11.
+> 🔆 **[ESM](https://gist.github.com/onury/d3f3d765d7db2e8b2d050d14315f2ac7)-only**, like AccessControl v3. Requires Node ≥ 20 and NestJS 10/11/12.
 
 ## Why
 
