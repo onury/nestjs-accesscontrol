@@ -7,3 +7,6 @@ reports/
 .DS_Store
 .idea/
 .vscode/
+
+# ---- Author's working notes: planning, specs, working agreements ----
+_notes/
