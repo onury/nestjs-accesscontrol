@@ -12,8 +12,8 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.ts'],
     coverage: {
       provider: 'istanbul',
-      reporter: ['text', 'lcov'],
-      reportsDirectory: 'coverage',
+      reporter: ['text', 'lcov', 'json-summary'],
+      reportsDirectory: '_backup/reports/coverage',
       include: ['src/**/*.ts'],
       exclude: [
         'src/index.ts', // barrel
