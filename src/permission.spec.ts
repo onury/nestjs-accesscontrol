@@ -83,6 +83,73 @@ describe('FilterResponseInterceptor', () => {
   });
 });
 
+describe('FilterResponseInterceptor with a map-data wrapper (e.g. EnvelopeBody)', () => {
+  const interceptor = new FilterResponseInterceptor();
+  const MAP_DATA = Symbol.for('nestjs-http-envelope:map-data');
+
+  // Stands in for nestjs-http-envelope's EnvelopeBody: it carries the protocol
+  // method, and rebuilds itself (same class, same extras) around mapped data.
+  class Wrapper<T> {
+    constructor(
+      readonly data: T,
+      readonly extras: Record<string, unknown> = {}
+    ) {}
+    [MAP_DATA]<U>(fn: (data: T) => U): Wrapper<U> {
+      return new Wrapper(fn(this.data), this.extras);
+    }
+  }
+
+  function run(data: unknown) {
+    return firstValueFrom(
+      interceptor.intercept(ctx({ permission: readPermission() }), handlerOf(data))
+    );
+  }
+
+  it('filters the wrapped data, keeps the extras and returns the same class', async () => {
+    const extras = { pagination: { total: 1 } };
+    const body = new Wrapper({ title: 'T', secret: 'S' }, extras);
+    const result = (await run(body)) as Wrapper<unknown>;
+    expect(result).toBeInstanceOf(Wrapper);
+    expect(result).not.toBe(body);
+    expect(result.data).toEqual({ title: 'T' });
+    expect(result.extras).toBe(extras);
+    expect(body.data).toEqual({ title: 'T', secret: 'S' });
+  });
+
+  it('filters every item of wrapped array data', async () => {
+    const body = new Wrapper([
+      { title: 'A', secret: 'S1' },
+      { title: 'B', secret: 'S2' }
+    ]);
+    const result = (await run(body)) as Wrapper<unknown>;
+    expect(result).toBeInstanceOf(Wrapper);
+    expect(result.data).toEqual([{ title: 'A' }, { title: 'B' }]);
+  });
+
+  it('leaves wrapped null and primitive data as is', async () => {
+    expect(((await run(new Wrapper(null))) as Wrapper<unknown>).data).toBeNull();
+    expect(((await run(new Wrapper('hello'))) as Wrapper<unknown>).data).toBe('hello');
+  });
+
+  it('calls the protocol method on the wrapper itself', async () => {
+    const body = {
+      data: { title: 'T', secret: 'S' },
+      [MAP_DATA](this: { data: unknown }, fn: (d: unknown) => unknown) {
+        return { mapped: fn(this.data) };
+      }
+    };
+    expect(await run(body)).toEqual({ mapped: { title: 'T' } });
+  });
+
+  it('filters plain array responses item by item', async () => {
+    expect(await run([{ title: 'A', secret: 'S' }])).toEqual([{ title: 'A' }]);
+  });
+
+  it('treats a non-function value under the protocol key as plain data', async () => {
+    expect(await run({ title: 'T', secret: 'S', [MAP_DATA]: true })).toEqual({ title: 'T' });
+  });
+});
+
 describe('FilterResponse', () => {
   it('registers the FilterResponseInterceptor on the handler', () => {
     class C {
