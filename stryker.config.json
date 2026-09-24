@@ -5,8 +5,8 @@
   "vitest": { "configFile": "vitest.stryker.config.ts" },
   "coverageAnalysis": "perTest",
   "reporters": ["html", "json", "clear-text", "progress"],
-  "jsonReporter": { "fileName": "reports/mutation/mutation-report.json" },
-  "htmlReporter": { "fileName": "reports/mutation/mutation-report.html" },
+  "jsonReporter": { "fileName": "test/mutation/mutation-report.json" },
+  "htmlReporter": { "fileName": "test/mutation/mutation-report.html" },
   "mutate": [
     "src/**/*.ts",
     "!src/index.ts",

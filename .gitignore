@@ -11,3 +11,7 @@ reports/
 # ---- Author's working notes: planning, specs, working agreements ----
 _notes/
 _backup/
+
+# The latest test reports (coverage, mutation)
+test/coverage
+test/mutation
