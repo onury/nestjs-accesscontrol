@@ -166,6 +166,24 @@ findOne(@Req() req: AccessControlRequest) {
 const visible = filterByPermission(permission, article);
 ```
 
+**Paginated responses** — if you use [nestjs-http-envelope](https://github.com/onury/nestjs-http-envelope) (v1.0.2 or later), `@FilterResponse()` works on a returned `EnvelopeBody` too. It filters the body's `data` (each item, if it's an array) and leaves `extras` alone, so the response is still `{ statusCode, timestamp, pagination, data }` with `data` filtered:
+
+```ts
+import { EnvelopeBody } from 'nestjs-http-envelope';
+
+@ReadAny('article')
+@FilterResponse()
+@Get()
+async list(@Query() q: ListDto) {
+  const [data, total] = await this.articles.page(q);
+  return new EnvelopeBody(data, { pagination: { total, page: q.page } });
+}
+```
+
+This package doesn't depend on the envelope. `EnvelopeBody` exposes a method under `Symbol.for('nestjs-http-envelope:map-data')` that returns a copy of itself around new data, and the interceptor calls that instead of filtering the wrapper object. Any wrapper of your own can do the same: implement that method and it gets its payload filtered and itself handed back.
+
+_Note: with nestjs-http-envelope v1.0.1 or earlier, the `EnvelopeBody` itself gets filtered, so the attributes inside `data` are not stripped and the envelope nests it as `data: { data, extras }`. Upgrade both packages, or call `req.permission.filter(data)` before you wrap it._
+
 **Enforce `own`** — the guard authorizes the _grant_ (may this role update its own articles?), but only your code knows who owns a given record. Load it and compare:
 
 ```ts
@@ -222,7 +240,7 @@ canPromote(role: string) {
 | Export | Description |
 | --- | --- |
 | `AccessControlGuard` | Evaluates the route's rules (fail-closed `tryCan`); attaches the granted `Permission` to `req.permission`. |
-| `@FilterResponse()` | Handler/controller decorator — filters the response through `req.permission`. |
+| `@FilterResponse()` | Handler/controller decorator — filters the response through `req.permission`. A returned `EnvelopeBody` is filtered on its `data`, extras kept (see [Paginated responses](#attribute-filtering--ownership)). |
 | `FilterResponseInterceptor` | The interceptor class behind `@FilterResponse()` (for manual `@UseInterceptors`). |
 | `filterByPermission(permission, data)` | Function form of the filter, for use in services. |
 | `assertOwner(userId, ownerId, message?)` | Throws `ForbiddenException` unless the two ids match (`own` enforcement). |
