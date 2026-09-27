@@ -4,8 +4,9 @@
   "testRunner": "vitest",
   "vitest": { "configFile": "vitest.stryker.config.ts" },
   "coverageAnalysis": "perTest",
-  "reporters": ["html", "json", "clear-text", "progress"],
+  "reporters": ["html", "json", "clear-text", "progress", "event-recorder"],
   "jsonReporter": { "fileName": "test/mutation/mutation-report.json" },
+  "eventReporter": { "baseDir": "test/mutation/events" },
   "htmlReporter": { "fileName": "test/mutation/mutation-report.html" },
   "mutate": [
     "src/**/*.ts",
