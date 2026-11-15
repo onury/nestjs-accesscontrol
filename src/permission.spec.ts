@@ -16,6 +16,16 @@ function readPermission() {
   return ac.can('user').readAny('article');
 }
 
+/** A grant whose list does not start with `*`: the shape accesscontrol < 3.1.2 mutated. */
+function nestedPermission() {
+  const ac = new AccessControl();
+  ac.grant('user').readAny('account', ['profile.*', '!profile.secret']);
+  ac.lock();
+  return ac.can('user').readAny('account');
+}
+
+const record = () => ({ id: 1, profile: { name: 'x', secret: 's' } });
+
 function ctx(request: unknown) {
   return {
     switchToHttp: () => ({ getRequest: () => request })
@@ -31,6 +41,14 @@ describe('filterByPermission', () => {
     expect(filterByPermission(readPermission(), { title: 'T', secret: 'S' })).toEqual({
       title: 'T'
     });
+  });
+
+  it('never mutates or shares the record it is given', () => {
+    const rec = record();
+    const out = filterByPermission(nestedPermission(), rec) as any;
+    expect(out).toEqual({ profile: { name: 'x' } });
+    expect(rec).toEqual(record());
+    expect(out.profile).not.toBe(rec.profile);
   });
 });
 
@@ -64,6 +82,16 @@ describe('FilterResponseInterceptor', () => {
       handlerOf({ title: 'T', secret: 'S' })
     );
     expect(await firstValueFrom(result)).toEqual({ title: 'T' });
+  });
+
+  it('never mutates or shares the returned record', async () => {
+    const rec = record();
+    const out: any = await firstValueFrom(
+      interceptor.intercept(ctx({ permission: nestedPermission() }), handlerOf(rec))
+    );
+    expect(out).toEqual({ profile: { name: 'x' } });
+    expect(rec).toEqual(record());
+    expect(out.profile).not.toBe(rec.profile);
   });
 
   it('passes data through when there is no permission', async () => {
