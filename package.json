@@ -59,7 +59,7 @@
   "peerDependencies": {
     "@nestjs/common": "^10 || ^11 || ^12",
     "@nestjs/core": "^10 || ^11 || ^12",
-    "accesscontrol": "^3",
+    "accesscontrol": "^3.1.2",
     "reflect-metadata": "^0.2",
     "rxjs": "^7"
   },
@@ -73,7 +73,7 @@
     "@swc/core": "^1.15.43",
     "@types/node": "^24.0.0",
     "@vitest/coverage-istanbul": "^4.1.9",
-    "accesscontrol": "^3.0.0",
+    "accesscontrol": "^3.1.2",
     "biome-config-oy": "^1.1.0",
     "nestjs-http-envelope": "^1.0.2",
     "reflect-metadata": "^0.2.2",
