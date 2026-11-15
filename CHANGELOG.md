@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file. The format 
 ## 1.0.3 (2026-11-15)
 
 ### Fixed
-- Requires accesscontrol 3.1.2 or later (peer range `^3.1.2`). Before 3.1.2, `Permission.filter()` removed denied nested attributes from the record you passed in when the attribute list didn't start with `*` (e.g. `['profile.*', '!profile.secret']`), so `@FilterResponse()`, `filterData()` and `request.permission.filter()` could change your own objects; 3.1.2 also closes an IP-gate bypass in `cidr` conditions. Update accesscontrol along with this package: `npm install nestjs-accesscontrol@latest accesscontrol@latest`.
+- Requires accesscontrol 3.1.2 or later (peer range `^3.1.2`). Before 3.1.2, `Permission.filter()` removed denied nested attributes from the record you passed in when the attribute list didn't start with `*` (e.g. `['profile.*', '!profile.secret']`), so `@FilterResponse()`, `filterByPermission()` and `request.permission.filter()` could change your own objects; 3.1.2 also closes an IP-gate bypass in `cidr` conditions. Update accesscontrol along with this package: `npm install nestjs-accesscontrol@latest accesscontrol@latest`, and read accesscontrol's [3.1.2 notes](https://github.com/onury/accesscontrol/releases/tag/v3.1.2) first: a stored policy with a leading-zero IP literal now fails to load, some `during` expressions are now rejected, and a deny set with `.attributes([...])` denies only what it lists.
 
 ## 1.0.2 (2026-09-25)
 
